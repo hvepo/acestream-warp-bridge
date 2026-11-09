@@ -47,13 +47,40 @@ echo.
 if not "!PROXY_HOST!"=="" (
     set HTTP_PROXY=http://!PROXY_HOST!:!PROXY_PORT!
     set HTTPS_PROXY=http://!PROXY_HOST!:!PROXY_PORT!
-    set ALL_PROXY=socks5://!PROXY_HOST!:!PROXY_PORT!
+    set http_proxy=http://!PROXY_HOST!:!PROXY_PORT!
+    set https_proxy=http://!PROXY_HOST!:!PROXY_PORT!
     set NO_PROXY=localhost,127.0.0.1,::1
+    set no_proxy=localhost,127.0.0.1,::1
 )
 
 echo [*] Iniciando AceStream Engine...
 cd /d "%APPDATA%\ACEStream\engine"
 start "" "%APPDATA%\ACEStream\engine\ace_engine.exe"
-echo [OK] AceStream iniciado correctamente.
-timeout /t 3
-exit
+
+echo [*] Esperando confirmacion de inicio...
+timeout /t 3 >nul
+
+tasklist /FI "IMAGENAME eq ace_engine.exe" 2>nul | findstr /i "ace_engine.exe" >nul
+if !ERRORLEVEL! equ 0 (
+    echo.
+    echo ========================================================
+    echo  [OK] ACESTREAM INICIADO Y CORRIENDO CON ESCUDO WARP
+    echo ========================================================
+    echo  Proxy activo : !PROXY_HOST!:!PROXY_PORT!
+    echo ========================================================
+    timeout /t 4
+    exit /b 0
+) else (
+    echo.
+    echo ========================================================
+    echo  [!] ALERTA: AceStream intento arrancar pero se cerro.
+    echo ========================================================
+    echo [*] Ultimas lineas de %APPDATA%\ACEStream\engine\acestream.log:
+    echo --------------------------------------------------------
+    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+        "if (Test-Path \"$env:APPDATA\ACEStream\engine\acestream.log\") { Get-Content \"$env:APPDATA\ACEStream\engine\acestream.log\" -Tail 20 | Out-String | Write-Host } else { Write-Host 'No se encontro acestream.log' }"
+    echo --------------------------------------------------------
+    echo.
+    pause
+    exit /b 1
+)
