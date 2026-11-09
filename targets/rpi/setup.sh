@@ -86,9 +86,9 @@ fi
 echo ""
 
 # ------------------------------------------------------------------------------
-# 5. CONFIGURE AUTOMATIC 6-HOUR CHANNEL UPDATER & RUN INITIAL UPDATE
+# 5. CONFIGURE AUTOMATIC 1-HOUR CHANNEL UPDATER & RUN INITIAL UPDATE
 # ------------------------------------------------------------------------------
-echo "[5/5] Configuring systemd 6-hour update timer..."
+echo "[5/5] Configuring systemd 1-hour update timer..."
 if [ -f "$SCRIPT_DIR/install_update_timer.sh" ]; then
     bash "$SCRIPT_DIR/install_update_timer.sh"
 fi
@@ -104,7 +104,7 @@ echo "=========================================================="
 echo " - Active Services:"
 echo "   * warp-proxy.service (sing-box on port 1080): ACTIVE"
 echo "   * smbd.service (Samba share [playlists]): ACTIVE"
-echo "   * update-acestream-playlists.timer (every 6h): ACTIVE"
+echo "   * update-acestream-playlists.timer (every 1h): ACTIVE"
 echo ""
 echo " - Network Share Address:"
 echo "   * LAN: \\\\$(hostname -I | awk '{print $1}')\\playlists"

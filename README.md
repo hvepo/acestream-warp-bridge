@@ -52,7 +52,7 @@ flowchart LR
 
     subgraph RPi ["Raspberry Pi Target (WarpAcePi)"]
         S["sing-box Proxy\n(Port 1080)"]
-        P["Automated Channel Updater\n(Runs every 6h via systemd)"]
+        P["Automated Channel Updater\n(Runs every 1h via systemd)"]
     end
 
     subgraph Internet ["Open Internet"]
@@ -117,7 +117,7 @@ WarpAcePi/
 │       ├── setup.sh                     # Full 1-command installer (proxy + Samba + timers)
 │       ├── install_warp_service.sh      # Installs sing-box WARP proxy on port 1080
 │       ├── configure_samba.sh           # Configures Samba share [playlists] for drive Z:
-│       ├── install_update_timer.sh      # Installs systemd timer to refresh channels every 6h
+│       ├── install_update_timer.sh      # Installs systemd timer to refresh channels every 1h
 │       ├── run_channel_update.sh        # Manually refresh playlists and test streams now
 │       ├── config.json.template         # sing-box WARP configuration template
 │       └── warp-proxy.service           # systemd service unit
@@ -159,7 +159,7 @@ chmod +x setup.sh && ./setup.sh
 This single command:
 1. Installs and enables `sing-box` with Cloudflare WARP on port `1080`.
 2. Sets up Samba share `[playlists]` so Windows clients can mount `Z:\`.
-3. Enables systemd timer `update-acestream-playlists.timer` to refresh streams every 6 hours.
+3. Enables systemd timer `update-acestream-playlists.timer` to refresh streams every hour.
 
 ---
 
