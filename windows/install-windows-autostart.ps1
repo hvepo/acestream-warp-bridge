@@ -31,7 +31,7 @@ if (-not (Test-Path $engineDir)) {
 Copy-Item (Join-Path $scriptDir "launch_acestream.bat") -Destination $batTarget -Force
 Copy-Item (Join-Path $scriptDir "launch_acestream_silent.vbs") -Destination $vbsTarget -Force
 
-# 2. Copiar accesos directos al escritorio (soporte nativo para OneDrive y carpetas sincronizadas)
+# 2. Limpieza del escritorio (no dejar ningun archivo en el escritorio)
 $candidateDesktops = @(
     [Environment]::GetFolderPath("Desktop"),
     (Join-Path $env:USERPROFILE "Desktop"),
@@ -40,10 +40,10 @@ $candidateDesktops = @(
 ) | Select-Object -Unique | Where-Object { Test-Path $_ }
 
 foreach ($dPath in $candidateDesktops) {
-    Copy-Item (Join-Path $scriptDir "Reiniciar AceStream (WARP).bat") -Destination (Join-Path $dPath "Reiniciar AceStream (WARP).bat") -Force
-    Copy-Item (Join-Path $scriptDir "Comprobar Conexion RPi.bat") -Destination (Join-Path $dPath "Comprobar Conexion RPi.bat") -Force
+    Remove-Item (Join-Path $dPath "Reiniciar AceStream (WARP).bat") -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $dPath "Comprobar Conexion RPi.bat") -Force -ErrorAction SilentlyContinue
 }
-Write-Host "[OK] Creados accesos directos en el Escritorio ('Reiniciar AceStream (WARP)' y 'Comprobar Conexion RPi')." -ForegroundColor Green
+Write-Host "[OK] Escritorio limpio (todos los archivos permanecen unicamente en el repositorio)." -ForegroundColor Green
 
 # 3. Registrar en HKCU Run
 $regValue = "wscript.exe `"$vbsTarget`""

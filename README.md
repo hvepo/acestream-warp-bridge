@@ -71,7 +71,7 @@ acestream-warp-bridge/
 ├── windows/
 │   ├── launch_acestream.bat           # Lanzador inteligente con auto-detección y fallback
 │   ├── launch_acestream_silent.vbs    # Ejecutor silencioso (sin ventana CMD al iniciar sesión)
-│   ├── Reiniciar AceStream (WARP).bat # Acceso directo de escritorio para reconexión manual
+│   ├── Reiniciar AceStream (WARP).bat # Script para reinicio manual con comprobacion de proxy
 │   ├── Comprobar Conexion RPi.bat     # Diagnóstico integral de conectividad RPi, WARP y sockets
 │   └── install-windows-autostart.ps1  # Script PowerShell para registrar el arranque en Windows
 └── docs/
@@ -111,7 +111,7 @@ actualizar_y_activar.bat
 Esto dejará configurado:
 1. Copia de lanzadores a `%APPDATA%\ACEStream\engine\`.
 2. Inicio silencioso en el registro de Windows (`HKCU\...\Run\AceStream`).
-3. Accesos directos **`Reiniciar AceStream (WARP)`** y **`Comprobar Conexion RPi`** en tu Escritorio.
+3. Herramientas de control listas dentro de la carpeta `windows/` (tu Escritorio permanece 100% limpio).
 
 ---
 

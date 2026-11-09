@@ -33,10 +33,10 @@ echo.
 echo ========================================================
 echo  INSTALACION Y ACTUALIZACION COMPLETADA CON EXITO
 echo ========================================================
-echo  Se han instalado en tu equipo:
+echo  Configuracion aplicada:
 echo   - Autoarranque silencioso con escudo WARP al iniciar sesion
-echo   - Acceso directo: "Reiniciar AceStream (WARP)" en el Escritorio
-echo   - Acceso directo: "Comprobar Conexion RPi" en el Escritorio
+echo   - Herramientas listas dentro de la carpeta windows\ de este repositorio
+echo   - Tu Escritorio queda 100%% limpio (sin accesos directos)
 echo ========================================================
 echo.
 

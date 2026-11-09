@@ -31,7 +31,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
     Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
 }
 
-Write-Host "[*] Registrando servicios y accesos directos de escritorio..." -ForegroundColor Yellow
+Write-Host "[*] Registrando servicio de inicio automatico..." -ForegroundColor Yellow
 Push-Location $targetDir
 & ".\windows\install-windows-autostart.ps1"
 Pop-Location
@@ -40,8 +40,8 @@ Write-Host ""
 Write-Host "========================================================" -ForegroundColor Green
 Write-Host " [OK] INSTALACION COMPLETADA EN ESTE EQUIPO" -ForegroundColor Green
 Write-Host "========================================================" -ForegroundColor Green
-Write-Host " Accede a tu Escritorio para encontrar:" -ForegroundColor Cyan
-Write-Host "  1. 'Reiniciar AceStream (WARP).bat' (Inicia con escudo)" -ForegroundColor White
-Write-Host "  2. 'Comprobar Conexion RPi.bat' (Verifica el tunel)" -ForegroundColor White
+Write-Host " Todo reside dentro del repositorio en: $targetDir" -ForegroundColor Cyan
+Write-Host "  1. 'windows\Reiniciar AceStream (WARP).bat' (Inicia con escudo)" -ForegroundColor White
+Write-Host "  2. 'windows\Comprobar Conexion RPi.bat' (Verifica el tunel)" -ForegroundColor White
 Write-Host "========================================================" -ForegroundColor Green
 Write-Host ""
