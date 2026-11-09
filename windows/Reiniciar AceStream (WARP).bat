@@ -7,8 +7,9 @@ echo        REINICIANDO ACESTREAM CON ESCUDO ANTI-BLOQUEO
 echo ========================================================
 echo.
 
-echo [*] Cerrando instancias activas de AceStream...
+echo [*] Cerrando instancias activas de AceStream y liberando puerto 6878...
 taskkill /F /IM ace_engine.exe >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p = (Get-NetTCPConnection -LocalPort 6878 -ErrorAction SilentlyContinue).OwningProcess; if ($p) { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue }" >nul 2>&1
 timeout /t 1 >nul
 
 echo [*] Comprobando conexion con Raspberry Pi...
@@ -52,9 +53,9 @@ if not "%PROXY_HOST%"=="" (
     set no_proxy=localhost,127.0.0.1,::1
 )
 
-echo [*] Iniciando AceStream Engine...
+echo [*] Iniciando AceStream Engine en puerto 6878...
 cd /d "%APPDATA%\ACEStream\engine"
-start "" "%APPDATA%\ACEStream\engine\ace_engine.exe"
+start "" "%APPDATA%\ACEStream\engine\ace_engine.exe" --http-port 6878
 
 echo [*] Esperando confirmacion de inicio...
 timeout /t 3 >nul

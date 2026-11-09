@@ -33,5 +33,5 @@ if not "%PROXY_HOST%"=="" (
 )
 
 cd /d "%APPDATA%\ACEStream\engine"
-start "" "%APPDATA%\ACEStream\engine\ace_engine.exe"
+start "" "%APPDATA%\ACEStream\engine\ace_engine.exe" --http-port 6878
 exit
