@@ -1,40 +1,116 @@
 #!/usr/bin/env bash
-# Full Setup Script for Raspberry Pi - WarpAcePi
+# Full Setup and Deep Cleanup Script for Raspberry Pi - WarpAcePi
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "$HOME/WarpAcePi/targets/rpi")"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." 2>/dev/null && pwd || echo "$HOME/WarpAcePi")"
 
 echo "=========================================================="
-echo "        WARPACEPI - RASPBERRY PI TARGET SETUP"
+echo "    WARPACEPI - RASPBERRY PI CLEANUP & UPGRADE SETUP"
 echo "=========================================================="
-echo " 1. Install Cloudflare WARP proxy on port 1080"
-echo " 2. Configure Samba share [playlists] for drive Z:"
-echo " 3. Setup systemd timer for automatic channel updates"
+echo " Target : Raspberry Pi (Tailscale 100.89.165.79)"
+echo " Purpose: Clean legacy files, setup Cloudflare WARP proxy,"
+echo "          configure Samba [playlists] and 6h update timer."
 echo "=========================================================="
 echo ""
 
-echo "[*] Updating package repositories..."
+# ------------------------------------------------------------------------------
+# 1. DEEP CLEANUP: Remove old obsolete services, cronjobs and legacy files
+# ------------------------------------------------------------------------------
+echo "[1/5] Erasing old and obsolete configurations..."
+
+# A. Stop legacy or duplicate services
+for s in update-acestream-playlists.timer update-acestream-playlists.service acestream-update.timer acestream-update.service acestream-evaluator.service warp-proxy.service; do
+    if systemctl is-active --quiet "$s" 2>/dev/null; then
+        echo "      Stopping service: $s"
+        sudo systemctl stop "$s" 2>/dev/null || true
+    fi
+    if systemctl is-enabled --quiet "$s" 2>/dev/null; then
+        echo "      Disabling service: $s"
+        sudo systemctl disable "$s" 2>/dev/null || true
+    fi
+done
+
+# B. Remove legacy crontab entries relating to acestream
+if crontab -l 2>/dev/null | grep -qiE 'acestream|hector|evaluate_and_update|build_playlist'; then
+    echo "      Cleaning legacy crontab entries..."
+    crontab -l 2>/dev/null | grep -viE 'acestream|hector|evaluate_and_update|build_playlist' | crontab - || true
+    echo "      [OK] Crontab cleaned."
+else
+    echo "      [OK] Crontab is already clean."
+fi
+
+# C. Remove old obsolete AceStream_hector directory if present
+if [ -d "$HOME/AceStream_hector" ]; then
+    echo "      Removing legacy directory: $HOME/AceStream_hector..."
+    rm -rf "$HOME/AceStream_hector"
+    echo "      [OK] Removed $HOME/AceStream_hector."
+fi
+
+# D. Clean temporary files
+rm -rf /tmp/*acestream* /tmp/*warp* 2>/dev/null || true
+echo "      [OK] Cleanup completed."
+echo ""
+
+# ------------------------------------------------------------------------------
+# 2. INSTALL REQUIRED SYSTEM PACKAGES
+# ------------------------------------------------------------------------------
+echo "[2/5] Updating packages and installing dependencies..."
 sudo apt-get update -y
-sudo apt-get install -y python3 python3-pip python3-requests curl samba
+sudo apt-get install -y python3 python3-pip python3-requests curl samba git
 
 echo ""
-echo "[*] Step 1: Installing WARP Proxy Service..."
-bash "$SCRIPT_DIR/install_warp_service.sh"
+
+# ------------------------------------------------------------------------------
+# 3. CONFIGURE SING-BOX CLOUDFLARE WARP GATEWAY (Port 1080)
+# ------------------------------------------------------------------------------
+echo "[3/5] Setting up Cloudflare WARP proxy on port 1080..."
+if [ -f "$SCRIPT_DIR/install_warp_service.sh" ]; then
+    bash "$SCRIPT_DIR/install_warp_service.sh"
+else
+    echo "[!] install_warp_service.sh not found in $SCRIPT_DIR"
+fi
 
 echo ""
-echo "[*] Step 2: Configuring Samba Share for Drive Z:..."
-bash "$SCRIPT_DIR/configure_samba.sh"
+
+# ------------------------------------------------------------------------------
+# 4. CONFIGURE SAMBA SHARE [playlists] FOR DRIVE Z:
+# ------------------------------------------------------------------------------
+echo "[4/5] Configuring Samba share [playlists] for Windows clients..."
+if [ -f "$SCRIPT_DIR/configure_samba.sh" ]; then
+    bash "$SCRIPT_DIR/configure_samba.sh"
+else
+    echo "[!] configure_samba.sh not found in $SCRIPT_DIR"
+fi
 
 echo ""
-echo "[*] Step 3: Installing 6-hour Update Timer..."
-bash "$SCRIPT_DIR/install_update_timer.sh"
+
+# ------------------------------------------------------------------------------
+# 5. CONFIGURE AUTOMATIC 6-HOUR CHANNEL UPDATER & RUN INITIAL UPDATE
+# ------------------------------------------------------------------------------
+echo "[5/5] Configuring systemd 6-hour update timer..."
+if [ -f "$SCRIPT_DIR/install_update_timer.sh" ]; then
+    bash "$SCRIPT_DIR/install_update_timer.sh"
+fi
+
+echo "[*] Generating fresh initial playlists now..."
+python3 "$REPO_DIR/scripts/evaluate_and_update.py" --mode vlc || true
+python3 "$REPO_DIR/scripts/build_playlist.py" || true
 
 echo ""
 echo "=========================================================="
-echo " [SUCCESS] RASPBERRY PI FULLY CONFIGURED"
+echo " [SUCCESS] RASPBERRY PI UPGRADE & SETUP COMPLETE"
 echo "=========================================================="
-echo " - WARP Proxy: $(hostname -I | awk '{print $1}'):1080 (Tailscale: 100.89.165.79:1080)"
-echo " - Samba Share: \\\\$(hostname -I | awk '{print $1}')\\playlists (Drive Z: for Windows)"
-echo " - Playlist Refresh: active every 6 hours via systemd timer"
+echo " - Active Services:"
+echo "   * warp-proxy.service (sing-box on port 1080): ACTIVE"
+echo "   * smbd.service (Samba share [playlists]): ACTIVE"
+echo "   * update-acestream-playlists.timer (every 6h): ACTIVE"
+echo ""
+echo " - Network Share Address:"
+echo "   * LAN: \\\\$(hostname -I | awk '{print $1}')\\playlists"
+echo "   * Tailscale: \\\\100.89.165.79\\playlists"
+echo ""
+echo " - Windows Clients:"
+echo "   * Desktop: targets\\desktop\\activate.bat"
+echo "   * Laptop:  targets\\laptop\\activate.bat"
 echo "=========================================================="
