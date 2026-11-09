@@ -1,0 +1,2 @@
+# Dependencias opcionales para utilidades avanzadas de red
+requests>=2.31.0

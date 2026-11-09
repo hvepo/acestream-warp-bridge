@@ -95,11 +95,14 @@ if ($existingZ -or $netZ) {
 
 # Preguntar nombre de la carpeta compartida o intentar conectar
 Write-Host ""
-Write-Host " Introduce el nombre de la carpeta compartida en la Raspberry Pi." -ForegroundColor White
-Write-Host " (En tu PC, fijate como se llama la carpeta compartida o pulsa Enter si es 'share'):" -ForegroundColor Gray
+Write-Host " (Pulsa Enter para autodeteccion de 'playlists' o 'share'):" -ForegroundColor Gray
 $shareName = Read-Host " Nombre de la carpeta"
 if ([string]::IsNullOrWhiteSpace($shareName)) {
-    $shareName = "share"
+    if (Test-Path "\\$activeTarget\playlists") {
+        $shareName = "playlists"
+    } else {
+        $shareName = "share"
+    }
 }
 
 $fullPath = "\\$activeTarget\$shareName"

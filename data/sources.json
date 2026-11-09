@@ -1,0 +1,233 @@
+{
+  "metadata": {
+    "title": "Fuentes de Canales AceStream",
+    "description": "Catálogo de sitios web, portales, pastes y listas M3U remotas para evaluar periódicamente",
+    "updated_at": "2026-10-18T23:37:00Z"
+  },
+  "sources": [
+    {
+      "id": "elcano-m3u-descargable",
+      "name": "Elcano.top (Descargable M3U Acestream)",
+      "url": "data/hashes_acestream.m3u",
+      "type": "m3u",
+      "enabled": true,
+      "category_fallback": "Sports",
+      "headers": {},
+      "notes": "Lista M3U completa descargada desde Elcano.top (hashes_acestream.m3u) con logos y metadatos TVG"
+    },
+    {
+      "id": "mylinkpaste-lucastokyo",
+      "name": "LucasTokyo Unificado (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=695d5309d05ee88b5cd7efad",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Contenedor unificado de LucasTokyo con catálogo general de deportes y eventos (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-elcano",
+      "name": "Elcano (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=681fc74c1833d17ffd9a9c59",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Catálogo Elcano en Mylinkpaste con 15 referencias resueltas (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-mamandurrias",
+      "name": "Mamandurrias (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=682cb7103451b27a40bc9aa2",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Mamandurrias en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-shickat",
+      "name": "Shickat (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=68769ab93451b27a40bc9f6b",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Shickat en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-ordonez",
+      "name": "Ordóñez (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=692bf5373451b27a40bcb014",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Ordóñez en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-nanostreams",
+      "name": "Nanostreams (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=68a975d43451b27a40bca0b3",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Nanostreams en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-euphorbia",
+      "name": "Euphorbia Helioscopia (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=6983264cd05ee80b5cd83776",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Euphorbia Helioscopia en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-euphorbia-x",
+      "name": "Euphorbia Helioscopia X (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=69442bead05ee80b5cd7ea08",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección alternativa Euphorbia Helioscopia (X) en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "mylinkpaste-matteo",
+      "name": "Matteo (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=68b1dfe33451b27a40bca11d",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Matteo en Mylinkpaste (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "elcano-portal-web",
+      "name": "Elcano.top (Portal Web IPNS)",
+      "url": "https://k51qzi5uqu5dh5qej4b9wlcr5i6vhc7rcfkekhrxqek5c9lk6gdaiik820fecs.ipns.inbrowser.link/",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Portal web descentralizado IPNS de Elcano con enlaces directos y hashes actualizados (Desactivado para peticiones HTTP directas por proteccion phpKobo; canales cubiertos por hashes_acestream.m3u y buscador)"
+    },
+    {
+      "id": "local-catalog-reference",
+      "name": "Catálogo Local Existente (data/channels.json)",
+      "url": "data/channels.json",
+      "type": "json",
+      "enabled": true,
+      "category_fallback": "General",
+      "headers": {},
+      "notes": "Evalúa y verifica el estado de los canales ya registrados en el catálogo local"
+    },
+    {
+      "id": "search-ace-stream",
+      "name": "Search-Ace.stream (Buscador Complementario por Keywords)",
+      "url": "https://search-ace.stream/search?query={keyword}",
+      "type": "search_engine",
+      "enabled": true,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Motor de búsqueda que amplía el catálogo consultando dinámicamente las keywords derivadas de los canales principales (DAZN, LaLiga, Movistar, F1, NBA, ATP, Tenis, Tennis, Basquet, etc.)"
+    },
+    {
+      "id": "acestreamid-home",
+      "name": "AceStreamID.com (Transmisiones y Eventos en Directo)",
+      "url": "https://acestreamid.com/",
+      "type": "html",
+      "enabled": true,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Listado de transmisiones en vivo y eventos deportivos actualizados en la portada de acestreamid.com"
+    },
+    {
+      "id": "acestreamid-search",
+      "name": "AceStreamID.com (Buscador Complementario por Keywords)",
+      "url": "https://acestreamid.com/search/?channel={keyword}",
+      "type": "search_engine",
+      "enabled": true,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Buscador de emisiones y hashes Acestrem en acestreamid.com mediante consultas dinámicas de canales deportivos (F1, Tenis, ATP, Basquet, NBA, etc.)"
+    },
+    {
+      "id": "elcano-ipfs-worker-hashes",
+      "name": "Elcano / Tokyo IPFS Worker (hashes.json)",
+      "url": "https://tokyo.elcano-ipfs.workers.dev/k51qzi5uqu5dh5qej4b9wlcr5i6vhc7rcfkekhrxqek5c9lk6gdaiik820fecs/hashes.json",
+      "type": "json",
+      "enabled": true,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Endpoint JSON directo en Cloudflare Workers (Elcano/Tokyo) con hashes acestream actualizados en tiempo real para 75+ canales deportivos, con logos y metadatos TVG"
+    },
+    {
+      "id": "mylinkpaste-euphorbia-champions",
+      "name": "Euphorbia Liga de Campeones (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=6a9fd362fa2693a3a8f5dcfd",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Euphorbia Liga de Campeones en Mylinkpaste con 28 streams de Liga de Campeones 1-6 y Movistar Plus (Desactivado para peticiones HTTP directas por protección phpKobo)"
+    },
+    {
+      "id": "mylinkpaste-euphorbia-motogp",
+      "name": "Euphorbia MotoGP (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=6aa3b0eefa2693a3a8f5de10",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Euphorbia MotoGP en Mylinkpaste con emisiones DAZN MotoGP y Sky Sport MotoGP (Desactivado para peticiones HTTP directas por protección phpKobo)"
+    },
+    {
+      "id": "mylinkpaste-euphorbia-f1",
+      "name": "Euphorbia Fórmula 1 (Mylinkpaste)",
+      "url": "https://mylinkpaste.x10.mx/?code=6aa3c781fa2693a3a8f5de17",
+      "type": "auto",
+      "enabled": false,
+      "category_fallback": "Sports",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+      },
+      "notes": "Colección Euphorbia Fórmula 1 en Mylinkpaste con emisiones DAZN F1 y Sky Sport F1 (Desactivado para peticiones HTTP directas por protección phpKobo)"
+    }
+  ]
+}
