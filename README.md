@@ -94,16 +94,24 @@ chmod +x install-rpi-service.sh
 El servicio `warp-proxy.service` quedará habilitado en el arranque y escuchando en el puerto `1080` tanto en la IP local (`192.168.1.139`) como en tu IP fija de **Tailscale (`100.89.165.79`)**.
 
 ### 2. En Windows (Portátil / PC)
-Ejecutar desde PowerShell como Administrador:
+
+#### Opción A: En tu portátil o nuevo equipo (Instalación automática en 1 línea)
+Abre PowerShell y pega este comando:
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force
-.\windows\install-windows-autostart.ps1
+irm https://raw.githubusercontent.com/hvepo/acestream-warp-bridge/main/windows/install-remote.ps1 | iex
 ```
 
-Esto:
-1. Copiará los lanzadores a `%APPDATA%\ACEStream\engine\`.
-2. Registrará el inicio silencioso en el registro de Windows (`HKCU\...\Run\AceStream`).
-3. Creará el acceso directo **`Reiniciar AceStream (WARP)`** en tu Escritorio.
+#### Opción B: Si ya tienes el repositorio descargado
+Simplemente haz doble clic en el archivo:
+```text
+actualizar_y_activar.bat
+```
+(O ejecuta `.\windows\install-windows-autostart.ps1` desde PowerShell).
+
+Esto dejará configurado:
+1. Copia de lanzadores a `%APPDATA%\ACEStream\engine\`.
+2. Inicio silencioso en el registro de Windows (`HKCU\...\Run\AceStream`).
+3. Accesos directos **`Reiniciar AceStream (WARP)`** y **`Comprobar Conexion RPi`** en tu Escritorio.
 
 ---
 
