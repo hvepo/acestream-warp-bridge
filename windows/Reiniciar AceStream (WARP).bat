@@ -69,8 +69,12 @@ echo ========================================================
 echo  [OK] ACESTREAM INICIADO Y CORRIENDO CON ESCUDO WARP
 echo ========================================================
 echo  Proxy activo : %PROXY_HOST%:%PROXY_PORT%
+echo.
+echo [*] Verificando servidor local VLC (127.0.0.1:6878)...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ready = $false; for ($i=0; $i -lt 10; $i++) { try { $r = Invoke-RestMethod -Uri 'http://127.0.0.1:6878/webui/api/service?method=get_version' -TimeoutSec 1 -ErrorAction Stop; $ready = $true; break } catch { Start-Sleep -Milliseconds 500 } }; if ($ready) { Write-Host ' [OK] Puerto 6878 ACTIVO y respondiendo. Ya puedes reproducir el canal en VLC.' -ForegroundColor Green } else { Write-Host ' [AVISO] El motor arranco pero el puerto 6878 sigue inicializandose.' -ForegroundColor Yellow }"
 echo ========================================================
-timeout /t 4
+echo.
+timeout /t 5
 exit /b 0
 
 :RUNNING_FAILED
