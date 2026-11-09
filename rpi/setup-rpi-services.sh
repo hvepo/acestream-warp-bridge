@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-# Configurar Samba (Unidad Z:) y Actualizador Automático de Listas en Raspberry Pi
+# Setup Samba (Drive Z:) and Automatic Channel Updater on Raspberry Pi (WarpAcePi)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 PLAYLISTS_DIR="$REPO_DIR/playlists"
 
-echo "=== Configuración de Samba y Actualizador de Canales en Raspberry Pi ==="
-echo "[*] Carpeta de listas detectada: $PLAYLISTS_DIR"
+echo "=== WarpAcePi: Setup Samba & Channel Updater on Raspberry Pi ==="
+echo "[*] Playlists directory: $PLAYLISTS_DIR"
 
-# 1. Instalar dependencias necesarias
-echo "[*] Instalando Samba y dependencias de Python..."
+# 1. Install dependencies
+echo "[*] Installing Samba and Python dependencies..."
 sudo apt-get update -y
 sudo apt-get install -y samba python3 python3-pip python3-requests
 
-# 2. Configurar Samba para compartir la carpeta playlists
+# 2. Configure Samba share
 SMB_CONF="/etc/samba/smb.conf"
 SHARE_NAME="playlists"
 
 if ! grep -q "\[$SHARE_NAME\]" "$SMB_CONF"; then
-    echo "[*] Añadiendo recurso compartido [$SHARE_NAME] a $SMB_CONF..."
+    echo "[*] Adding [$SHARE_NAME] share to $SMB_CONF..."
     sudo tee -a "$SMB_CONF" > /dev/null << EOF
 
 [$SHARE_NAME]
-   comment = Listas AceStream para VLC y AcePlayer
+   comment = WarpAcePi Playlists for VLC and AcePlayer
    path = $PLAYLISTS_DIR
    browseable = yes
    read only = no
@@ -32,21 +32,21 @@ if ! grep -q "\[$SHARE_NAME\]" "$SMB_CONF"; then
    directory mask = 0775
    force user = $(whoami)
 EOF
-    echo "[*] Reiniciando servicio Samba (smbd)..."
+    echo "[*] Restarting Samba service (smbd)..."
     sudo systemctl restart smbd
     sudo systemctl enable smbd
 else
-    echo "[OK] El recurso [$SHARE_NAME] ya existe en $SMB_CONF."
+    echo "[OK] Share [$SHARE_NAME] already configured in $SMB_CONF."
 fi
 
-# 3. Crear servicio systemd para la actualización automática de canales
+# 3. Create systemd timer for automatic playlist updates
 SERVICE_FILE="/etc/systemd/system/update-acestream-playlists.service"
 TIMER_FILE="/etc/systemd/system/update-acestream-playlists.timer"
 
-echo "[*] Creando servicio systemd para actualizar canales..."
+echo "[*] Creating systemd service for channel updates..."
 sudo tee "$SERVICE_FILE" > /dev/null << EOF
 [Unit]
-Description=Actualizador Automatico de Canales AceStream
+Description=WarpAcePi Automatic Channel Updater
 After=network-online.target warp-proxy.service
 
 [Service]
@@ -58,10 +58,10 @@ StandardOutput=journal
 StandardError=journal
 EOF
 
-echo "[*] Creando temporizador systemd (ejecución cada 6 horas)..."
+echo "[*] Creating systemd timer (runs every 6 hours)..."
 sudo tee "$TIMER_FILE" > /dev/null << EOF
 [Unit]
-Description=Temporizador para actualizador de listas AceStream
+Description=Timer for WarpAcePi Channel Updater
 
 [Timer]
 OnBootSec=5min
@@ -77,10 +77,10 @@ sudo systemctl enable --now update-acestream-playlists.timer
 
 echo ""
 echo "=========================================================="
-echo " [OK] CONFIGURACION DE RASPBERRY PI COMPLETADA CON EXITO"
+echo " [OK] RASPBERRY PI SETUP COMPLETED SUCCESSFULLY"
 echo "=========================================================="
-echo " 1. Recurso Samba disponible en red como: \\\\$(hostname -I | awk '{print $1}')\\$SHARE_NAME"
-echo "    o via Tailscale: \\\\100.89.165.79\\$SHARE_NAME"
-echo " 2. Listas actualizadas automaticamente cada 6 horas."
-echo " 3. En Windows, ejecuta: windows\\Conectar Unidad Z (Raspberry Pi).bat"
+echo " 1. Samba share available on LAN: \\\\$(hostname -I | awk '{print $1}')\\$SHARE_NAME"
+echo "    or via Tailscale: \\\\100.89.165.79\\$SHARE_NAME"
+echo " 2. Playlists automatically updated every 6 hours."
+echo " 3. On Windows, run: windows\\connect_z_drive_rpi.bat"
 echo "=========================================================="

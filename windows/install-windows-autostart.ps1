@@ -1,4 +1,4 @@
-# Script de instalación para Windows: Registra el launcher inteligente en el inicio de Windows
+# Windows Auto-Start Installer for WarpAcePi
 param (
     [switch]$Uninstall
 )
@@ -13,25 +13,25 @@ $batTarget = Join-Path $engineDir "launch_acestream.bat"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 if ($Uninstall) {
-    Write-Host "[*] Restaurando inicio predeterminado de AceStream..." -ForegroundColor Yellow
+    Write-Host "[*] Restoring default AceStream startup..." -ForegroundColor Yellow
     $defaultExe = Join-Path $engineDir "ace_engine.exe"
     Set-ItemProperty -Path $regPath -Name $regName -Value $defaultExe
-    Write-Host "[OK] Inicio restaurado a ace_engine.exe directo." -ForegroundColor Green
+    Write-Host "[OK] Startup restored to direct ace_engine.exe." -ForegroundColor Green
     return
 }
 
-Write-Host "=== Instalador AceStream WARP Launcher para Windows ===" -ForegroundColor Cyan
+Write-Host "=== WarpAcePi: Windows Auto-Start Installer ===" -ForegroundColor Cyan
 
-# 1. Copiar scripts al directorio de AceStream
-Write-Host "[*] Copiando scripts a $engineDir..."
+# 1. Copy launcher scripts to AceStream directory
+Write-Host "[*] Copying scripts to $engineDir..."
 if (-not (Test-Path $engineDir)) {
-    throw "No se encontro el directorio de AceStream en $engineDir. Asegurate de haber instalado AceStream."
+    throw "AceStream directory not found in $engineDir. Please make sure AceStream is installed."
 }
 
 Copy-Item (Join-Path $scriptDir "launch_acestream.bat") -Destination $batTarget -Force
 Copy-Item (Join-Path $scriptDir "launch_acestream_silent.vbs") -Destination $vbsTarget -Force
 
-# 2. Limpieza del escritorio (no dejar ningun archivo en el escritorio)
+# 2. Clean desktop variants (strictly zero files on desktop)
 $candidateDesktops = @(
     [Environment]::GetFolderPath("Desktop"),
     (Join-Path $env:USERPROFILE "Desktop"),
@@ -42,12 +42,14 @@ $candidateDesktops = @(
 foreach ($dPath in $candidateDesktops) {
     Remove-Item (Join-Path $dPath "Reiniciar AceStream (WARP).bat") -Force -ErrorAction SilentlyContinue
     Remove-Item (Join-Path $dPath "Comprobar Conexion RPi.bat") -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $dPath "restart_acestream_warp.bat") -Force -ErrorAction SilentlyContinue
+    Remove-Item (Join-Path $dPath "check_rpi_connection.bat") -Force -ErrorAction SilentlyContinue
 }
-Write-Host "[OK] Escritorio limpio (todos los archivos permanecen unicamente en el repositorio)." -ForegroundColor Green
+Write-Host "[OK] Desktop cleaned (all tools remain strictly inside repository)." -ForegroundColor Green
 
-# 3. Registrar en HKCU Run
+# 3. Register HKCU Run key
 $regValue = "wscript.exe `"$vbsTarget`""
 Set-ItemProperty -Path $regPath -Name $regName -Value $regValue
-Write-Host "[OK] Clave de inicio registrada en el Registro de Windows: $regValue" -ForegroundColor Green
+Write-Host "[OK] Auto-start entry registered in Windows Registry: $regValue" -ForegroundColor Green
 
-Write-Host "=== Instalacion completada con exito ===" -ForegroundColor Cyan
+Write-Host "=== Installation completed successfully ===" -ForegroundColor Cyan

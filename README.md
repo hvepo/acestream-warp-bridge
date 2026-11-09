@@ -1,130 +1,173 @@
-# AceStream WARP Bridge 🛡️📡
+# WarpAcePi 🛡️📡
 
-> Pasarela Proxy Anti-Censura para AceStream sobre Raspberry Pi + Cloudflare WARP + Tailscale Mesh.
+> Comprehensive Anti-Censorship Gateway & Automated M3U Playlist Manager for AceStream on Raspberry Pi + Cloudflare WARP + Tailscale Mesh.
 
 [![Tailscale](https://img.shields.io/badge/Tailscale-Mesh%20WireGuard-blue.svg)](https://tailscale.com)
 [![Cloudflare WARP](https://img.shields.io/badge/Cloudflare-WARP-orange.svg)](https://cloudflare.com)
 [![sing-box](https://img.shields.io/badge/sing--box-v1.14-green.svg)](https://sing-box.sagernet.org)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://python.org)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 ---
 
-## 💡 El Problema
+## 💡 The Problem
 
-En España, las principales operadoras de telecomunicaciones (Telefónica, DIGI, Vodafone, Orange) aplican **bloqueos dinámicos de IP y BGP null-routing** durante la emisión de partidos de fútbol (LaLiga / Champions League).
+In Spain and across Europe, major ISPs (DIGI, Telefónica, Vodafone, Orange) enforce **dynamic IP blocking and BGP null-routing** during major sporting events (LaLiga, Champions League).
 
-Aunque se disponga de una **suscripción activa de AceStream Premium**, la operadora censura las direcciones IP de los emisores y trackers en tiempo real, congelando la señal a los pocos minutos (*"Connecting to peers 0%" / Prebuffering*).
+Even with an active AceStream Premium subscription, ISP DPI (Deep Packet Inspection) censors tracker and peer IP addresses in real time, freezing the stream within minutes (*"Connecting to peers 0%" / Prebuffering loop*).
 
 ---
 
-## 🚀 La Solución: Arquitectura Híbrida
+## 🚀 The Solution: WarpAcePi
 
-Este proyecto convierte cualquier **Raspberry Pi** (incluso una modesta RPi 2 con 1 GB de RAM) en un **Gateway Proxy SOCKS5/HTTP ultraligero** que saca el tráfico de AceStream a través de la red troncal de **Cloudflare WARP**:
+**WarpAcePi** merges lightweight anti-censorship routing with an autonomous channel catalog & playlist distribution server:
+
+1. **Anti-Censorship Gateway (Raspberry Pi):** An ultra-lightweight SOCKS5/HTTP proxy (`sing-box`) routing AceStream traffic through the **Cloudflare WARP** backbone via WireGuard.
+2. **Autonomous Playlist Generator:** Automated scraping, validation, and compiling of verified M3U/M3U8 playlists for VLC and AcePlayer.
+3. **Automated Network Drive (Drive Z:):** Samba service sharing playlists across your LAN and Tailscale mesh, automatically mounted as network drive `Z:` on Windows.
+4. **Clean Windows Client Tools:** Zero desktop pollution scripts with automatic port isolation (`48621` on desktop, `48622` on laptop) and fixed HTTP loopback API (`127.0.0.1:6878`).
 
 ```mermaid
 flowchart LR
-    subgraph Cliente ["Cliente (Portátil / PC / TV)"]
-        A["AceStream Engine"]
+    subgraph Clients ["Clients (Desktop PC / Laptop / TV)"]
+        VLC["VLC Player\n(Plays from Z:\\playlist_vlc.m3u)"]
+        A["AceStream Engine\n(127.0.0.1:6878)"]
     end
 
-    subgraph Red ["Conectividad Híbrida"]
+    subgraph Network ["Connectivity Mesh"]
         T["Tailscale WireGuard\n(100.89.165.79:1080)"]
-        L["LAN Directa\n(192.168.1.139:1080)"]
+        L["Direct LAN\n(192.168.1.139:1080)"]
+        SMB["Samba Share\n(Mounted as Drive Z:)"]
     end
 
-    subgraph RPi ["Raspberry Pi (Gateway)"]
-        S["sing-box (WARP SOCKS5/HTTP)\nMemoria: ~50MB | CPU: <1%"]
+    subgraph RPi ["Raspberry Pi Server (WarpAcePi)"]
+        S["sing-box Proxy\nRAM: ~50MB | CPU: <1%"]
+        P["Automated Channel Updater\n(Runs every 6h via systemd)"]
     end
 
-    subgraph Exterior ["Internet Libre"]
-        CF["Cloudflare WARP\n(Salida limpia Madrid ES)"]
-        P2P["Nodos y Trackers AceStream"]
+    subgraph Internet ["Open Internet"]
+        CF["Cloudflare WARP\n(Clean Madrid ES exit)"]
+        P2P["AceStream Swarm & Trackers"]
     end
 
-    A -->|"Fuera de casa o LAN"| T
-    A -.->|"Fallback LAN local"| L
+    VLC -->|"Reads M3U"| SMB
+    VLC -->|"Requests Stream"| A
+    A -->|"External Traffic via Proxy"| T
+    A -.->|"Fallback Local LAN"| L
     T --> S
     L --> S
-    S -->|"WireGuard Cifrado"| CF
+    S -->|"Encrypted WireGuard"| CF
     CF --> P2P
+    P -->|"Updates M3U"| SMB
 ```
-
-### ✨ Características Principales
-- **Zero-Censura:** DIGI y otras operadoras solo ven paquetes cifrados estándar contra servidores de Cloudflare; es imposible aplicar bloqueo dinámico de IPs.
-- **Aislamiento por Proceso:** **Solo AceStream** pasa por el proxy. El resto del sistema operativo (navegadores, juegos, descargas) navega al 100% por tu fibra óptica habitual.
-- **Fallback Automático Inteligente:** Si la Raspberry Pi está apagada, el lanzador detecta el timeout en 600 ms y arranca AceStream en modo directo (sin proxy) para que nunca te quedes colgado.
-- **Movilidad Total vía Tailscale:** Funciona tanto en el sofá de tu casa (conmutación automática LAN P2P) como si viajas con el portátil a un hotel, oficina o usando datos móviles 4G/5G.
-- **Consumo Mínimo:** Consume apenas 55 MB de RAM en la Raspberry Pi y 0% de CPU en reposo.
 
 ---
 
-## 📁 Estructura del Repositorio
+## 📁 Repository Structure
 
 ```text
-acestream-warp-bridge/
-├── README.md                          # Este documento
-├── .gitignore                         # Higiene estricta de secretos y claves WireGuard
+WarpAcePi/
+├── README.md                            # Complete documentation
+├── requirements.txt                     # Python dependencies (requests)
+├── update_and_activate.bat              # 1-click Windows installer and updater
+├── update_channels.bat                  # Manual channel scraper and M3U compiler
+├── data/
+│   ├── channels.json                    # Structured channel catalog & metadata
+│   ├── sources.json                     # External web scrapers and portals
+│   └── hashes_acestream.m3u             # Extracted content IDs
+├── playlists/                           # Master playlists (shared as Drive Z:)
+│   ├── playlist_vlc.m3u                 # Optimized for VLC (http://127.0.0.1:6878/...)
+│   ├── playlist_direct.m3u              # Native acestream:// links (Ace Player)
+│   ├── playlist_http.m3u                # Standard HTTP proxy links
+│   └── working_streams_vlc_NOW.m3u      # Verified live working streams
+├── scripts/
+│   ├── evaluate_and_update.py           # Web scraper, live stream validator & compiler
+│   ├── build_playlist.py                # M3U playlist builder
+│   ├── check_streams.py                 # SHA-1 hash validator
+│   └── import_m3u.py                    # Import existing M3U files into catalog
 ├── rpi/
-│   ├── config.json.template           # Plantilla de configuración de sing-box para WARP
-│   ├── install-rpi-service.sh         # Script de despliegue automatizado en Raspberry Pi
-│   └── warp-proxy.service             # Unidad de servicio systemd
-├── windows/
-│   ├── launch_acestream.bat           # Lanzador inteligente con auto-detección y fallback
-│   ├── launch_acestream_silent.vbs    # Ejecutor silencioso (sin ventana CMD al iniciar sesión)
-│   ├── Reiniciar AceStream (WARP).bat # Script para reinicio manual con comprobacion de proxy
-│   ├── Comprobar Conexion RPi.bat     # Diagnóstico integral de conectividad RPi, WARP y sockets
-│   └── install-windows-autostart.ps1  # Script PowerShell para registrar el arranque en Windows
-└── docs/
-    └── troubleshooting.md             # Guía paso a paso para depuración y diagnóstico
+│   ├── install-rpi-service.sh           # Raspberry Pi WARP proxy installer
+│   ├── setup-rpi-services.sh            # Samba share (Z:) + systemd update timer
+│   ├── config.json.template             # sing-box WARP configuration template
+│   └── warp-proxy.service               # systemd unit for WARP proxy
+└── windows/
+    ├── restart_acestream_warp.bat       # Restart AceStream with WARP shield & port 6878
+    ├── check_rpi_connection.bat         # Diagnostics for RPi, WARP, Tailscale & sockets
+    ├── connect_z_drive_rpi.bat          # 1-click mapper for Drive Z: (RPi Samba)
+    ├── laptop_diagnostic_repair.bat     # Diagnostic & repair tool for Windows clients
+    ├── launch_acestream.bat             # Auto-detecting smart launcher with fallback
+    ├── launch_acestream_silent.vbs      # Silent login-time launcher
+    └── install-windows-autostart.ps1    # Registry auto-start installer
 ```
 
 ---
 
-## 🛠️ Instalación y Puesta en Marcha
+## 🛠️ Quick Start
 
-### 1. En la Raspberry Pi
-Clonar y ejecutar el instalador desatendido:
+### 1. On Raspberry Pi
+
+Run the automated installer:
 ```bash
-git clone https://github.com/hvepo/acestream-warp-bridge.git
-cd acestream-warp-bridge/rpi
-chmod +x install-rpi-service.sh
+git clone https://github.com/hvepo/acestream-warp-bridge.git WarpAcePi
+cd WarpAcePi/rpi
+
+# 1. Install WARP Proxy (sing-box on port 1080)
+chmod +x install-rpi-service.sh setup-rpi-services.sh
 ./install-rpi-service.sh
+
+# 2. Setup Samba (Drive Z:) and automatic 6-hour playlist updater
+./setup-rpi-services.sh
 ```
 
-El servicio `warp-proxy.service` quedará habilitado en el arranque y escuchando en el puerto `1080` tanto en la IP local (`192.168.1.139`) como en tu IP fija de **Tailscale (`100.89.165.79`)**.
+### 2. On Windows Clients (Desktop & Laptop)
 
-### 2. En Windows (Portátil / PC)
-
-#### Opción A: En tu portátil o nuevo equipo (Instalación automática en 1 línea)
-Abre PowerShell y pega este comando:
+#### Option A: One-line remote install (PowerShell)
 ```powershell
 irm https://raw.githubusercontent.com/hvepo/acestream-warp-bridge/main/windows/install-remote.ps1 | iex
 ```
 
-#### Opción B: Si ya tienes el repositorio descargado
-Simplemente haz doble clic en el archivo:
+#### Option B: From cloned repository
+Simply double-click:
 ```text
-actualizar_y_activar.bat
+update_and_activate.bat
 ```
-(O ejecuta `.\windows\install-windows-autostart.ps1` desde PowerShell).
 
-Esto dejará configurado:
-1. Copia de lanzadores a `%APPDATA%\ACEStream\engine\`.
-2. Inicio silencioso en el registro de Windows (`HKCU\...\Run\AceStream`).
-3. Herramientas de control listas dentro de la carpeta `windows/` (tu Escritorio permanece 100% limpio).
+This will automatically configure:
+1. Silent startup entry with WARP shield at Windows login.
+2. Tools ready inside `windows/` folder (desktop remains 100% clean).
+3. Connect Drive `Z:` by running `windows\connect_z_drive_rpi.bat`.
 
 ---
 
-## 🧪 Verificación Rápida
+## ⚙️ Multi-Device Port Configuration
 
-Para verificar que el proxy está activo y saliendo por Cloudflare:
+When streaming on multiple computers behind the same home router:
+
+| Device | AceStream Options -> Port (P2P) | Local VLC HTTP API | Destination Proxy |
+| :--- | :---: | :---: | :---: |
+| **Desktop PC** | **`48621`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) |
+| **Laptop** | **`48622`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) |
+
+> [!TIP]
+> Each computer must have a unique P2P port in AceStream Options to avoid router UPnP port collisions. Both computers use the standard local port `6878` for VLC compatibility.
+
+---
+
+## 🧪 Verification & Diagnostics
+
+To verify the proxy status and Cloudflare WARP exit node:
 ```bash
 curl -s -x socks5h://100.89.165.79:1080 https://cloudflare.com/cdn-cgi/trace | grep warp=
-# Resultado esperado: warp=on
+# Expected output: warp=on
+```
+
+On Windows, run:
+```cmd
+windows\check_rpi_connection.bat
 ```
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-Distribuido bajo la licencia [MIT](LICENSE).
+Distributed under the [MIT](LICENSE) License.

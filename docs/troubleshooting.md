@@ -1,76 +1,98 @@
-# Guía de Diagnóstico y Resolución de Problemas (Troubleshooting)
+# WarpAcePi Troubleshooting Guide 🛠️
 
-## 1. Comprobar el servicio en la Raspberry Pi
+## 1. Checking the Raspberry Pi Services
 
-Conéctate por SSH a la Raspberry Pi:
+Connect via SSH to your Raspberry Pi:
 ```bash
 ssh rpi
+# Or via Tailscale: ssh hvepo@100.89.165.79
 ```
 
-Verificar el estado del servicio:
+### Check WARP Proxy status:
 ```bash
 sudo systemctl status warp-proxy.service
 ```
 
-Reiniciar el servicio si fuera necesario:
+Restart the service if needed:
 ```bash
 sudo systemctl restart warp-proxy.service
 ```
 
-Comprobar que Cloudflare WARP responde correctamente en el puerto local:
+Verify that Cloudflare WARP is responding locally on port 1080:
 ```bash
-curl -s -x socks5h://127.0.0.1:1080 https://cloudflare.com/cdn-cgi/trace | grep warp=
-# Debe devolver: warp=on
+curl -s -x socks5h://127.0.0.1:1080 https://cloudflare.com/cdn-cgi/trace | grep -E 'warp=|ip=|loc='
+# Expected output: warp=on, loc=ES
+```
+
+### Check Samba (Drive Z:) and Playlist Updater:
+```bash
+sudo systemctl status smbd
+sudo systemctl status update-acestream-playlists.timer
 ```
 
 ---
 
-## 2. Comprobar la conexión desde el PC o portátil
+## 2. Checking Connectivity from Windows (Desktop or Laptop)
 
-Desde tu terminal (PowerShell o bash):
-```bash
-# Probar conexión vía Tailscale:
-curl -s -x socks5h://100.89.165.79:1080 https://cloudflare.com/cdn-cgi/trace | grep warp=
+Open PowerShell or Command Prompt on your Windows computer:
+```powershell
+# Test connection via Tailscale:
+curl -s -x http://100.89.165.79:1080 https://cloudflare.com/cdn-cgi/trace | Select-String "warp="
 
-# Probar conexión vía red local:
-curl -s -x socks5h://192.168.1.139:1080 https://cloudflare.com/cdn-cgi/trace | grep warp=
+# Test connection via Local LAN:
+curl -s -x http://192.168.1.139:1080 https://cloudflare.com/cdn-cgi/trace | Select-String "warp="
 ```
 
-Si devuelve `warp=on` y `loc=ES`, el túnel está al 100% operativo.
+Or simply double-click:
+```cmd
+windows\check_rpi_connection.bat
+```
+
+If it returns `warp=on` and `loc=ES`, the proxy tunnel is 100% operational.
 
 ---
 
-## 3. ¿Qué ocurre si la Raspberry Pi está apagada?
+## 3. What Happens if the Raspberry Pi is Offline?
 
-El script de arranque (`launch_acestream.bat`) y el acceso directo del escritorio (`Reiniciar AceStream (WARP).bat`) comprueban automáticamente si la RPi responde en un plazo de **600 milisegundos**:
-- **Si la RPi no responde:** AceStream se inicia en modo directo normal (sin proxy).
-- Nunca te quedarás bloqueado ni con AceStream sin abrir.
-- Cuando enciendas la Raspberry Pi, simplemente ejecuta el acceso directo **`Reiniciar AceStream (WARP).bat`** de tu Escritorio para aplicar el escudo sin reiniciar el ordenador.
-
----
-
-## 4. ¿Afecta al resto de programas del PC?
-
-**No.** El proxy se inyecta única y exclusivamente como variables de entorno locales al proceso de `ace_engine.exe`. Navegadores (Chrome, Edge), juegos (Steam) y descargas siguen saliendo por tu conexión normal de fibra al máximo ancho de banda.
+The startup scripts (`launch_acestream.bat`, `restart_acestream_warp.bat`) automatically probe if the RPi responds within **2.5 seconds** (Tailscale) or **1.5 seconds** (LAN):
+- **If the RPi does not respond:** AceStream falls back gracefully to direct mode (without proxy).
+- You will never be locked out or unable to launch AceStream.
+- Once you turn on the Raspberry Pi, simply run `windows\restart_acestream_warp.bat` to re-engage the WARP shield without rebooting your computer.
 
 ---
 
-## 5. El icono de AceStream desaparece de la bandeja del sistema
+## 4. Does This Affect Other PC Applications?
 
-Si notas que el icono no está visible o desaparece repentinamente, se debe a una de estas dos razones:
+**No.** The proxy settings (`HTTP_PROXY`, `HTTPS_PROXY`) are injected locally only to the `ace_engine.exe` process environment. Web browsers (Chrome, Edge), online gaming (Steam), torrents, and general downloads continue using your full fiber bandwidth directly.
 
-### A. Windows lo tiene agrupado dentro del menú de iconos ocultos (`^`)
-Windows 10 y Windows 11 por defecto esconden los iconos de la bandeja tras la flecha `^` (menú de desbordamiento):
-1. **Método rápido:** Haz clic en la flecha `^` al lado del reloj, pincha con el botón izquierdo sobre el icono de AceStream y **arrástralo directamente a la barra de tareas**. Quedará siempre fijo y visible.
-2. **Desde Configuración:**
-   - **En Windows 11:** Ve a *Configuración > Personalización > Barra de tareas > Otros iconos de la bandeja del sistema*, busca *AceStream* y márcalo como **Activado**.
-   - **En Windows 10:** Ve a *Configuración > Personalización > Barra de tareas > Área de notificación > Seleccionar qué iconos aparecen en la barra de tareas* y activa *AceStream* (o marca *"Mostrar siempre todos los iconos en el área de notificación"*).
+---
 
-### B. El proceso se cerraba al arrancar ("icono fantasma" que desaparece al pasar el ratón)
-Si el icono salía pero desaparecía en cuanto pasabas el cursor sobre él, significa que `ace_engine.exe` se cerraba en segundo plano. Esto ocurría porque las peticiones internas de AceStream a `127.0.0.1:6878` se enviaban al proxy en vez de resolverse localmente.
-- Los scripts actualizados ya incluyen **`NO_PROXY=localhost,127.0.0.1,::1`** y fijan el directorio de trabajo del motor.
-- Para aplicar la solución en tu PC, vuelve a ejecutar el instalador:
-  ```powershell
-  .\windows\install-windows-autostart.ps1
-  ```
-  O ejecuta el acceso directo **`Reiniciar AceStream (WARP).bat`**.
+## 5. Multi-Device Port Conflicts on Home Routers
+
+If you stream on both a Desktop PC and a Laptop behind the same router:
+- **Desktop PC:** Set AceStream Options -> Port to `48621`.
+- **Laptop:** Set AceStream Options -> Port to `48622`.
+- **Why?** Two computers behind the same public IP cannot share the same external UPnP port.
+- Both devices continue using standard local port `6878` for VLC playback.
+
+---
+
+## 6. VLC "Unable to Open MRL" / "Failed to Load Content"
+
+If VLC reports `VLC is unable to open the MRL 'http://127.0.0.1:6878/...`:
+1. **AceStream is not running or listening on port 6878:**
+   Run `windows\restart_acestream_warp.bat` to force-bind the engine to port 6878.
+2. **ISP Censorship Block:**
+   If entering `http://127.0.0.1:6878/ace/getstream?id=<ID>` in your browser shows `failed to load content`, AceStream is attempting direct connections that your ISP is null-routing. Ensure Tailscale is active and run `windows\restart_acestream_warp.bat`.
+3. **Router DoS Protection:**
+   Disable "DoS Protection" in your router settings (or set level to "Low") to prevent the router from dropping burst P2P packets.
+
+---
+
+## 7. Network Drive Z: Disconnected or Not Found
+
+Run:
+```cmd
+windows\connect_z_drive_rpi.bat
+```
+This utility automatically detects the active Raspberry Pi IP (LAN or Tailscale), verifies SMB port 445, prompts to switch Windows network profile from Public to Private if blocked, and persistently maps the `playlists` share to `Z:`.
