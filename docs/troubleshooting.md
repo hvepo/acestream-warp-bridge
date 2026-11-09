@@ -52,3 +52,25 @@ El script de arranque (`launch_acestream.bat`) y el acceso directo del escritori
 ## 4. ¿Afecta al resto de programas del PC?
 
 **No.** El proxy se inyecta única y exclusivamente como variables de entorno locales al proceso de `ace_engine.exe`. Navegadores (Chrome, Edge), juegos (Steam) y descargas siguen saliendo por tu conexión normal de fibra al máximo ancho de banda.
+
+---
+
+## 5. El icono de AceStream desaparece de la bandeja del sistema
+
+Si notas que el icono no está visible o desaparece repentinamente, se debe a una de estas dos razones:
+
+### A. Windows lo tiene agrupado dentro del menú de iconos ocultos (`^`)
+Windows 10 y Windows 11 por defecto esconden los iconos de la bandeja tras la flecha `^` (menú de desbordamiento):
+1. **Método rápido:** Haz clic en la flecha `^` al lado del reloj, pincha con el botón izquierdo sobre el icono de AceStream y **arrástralo directamente a la barra de tareas**. Quedará siempre fijo y visible.
+2. **Desde Configuración:**
+   - **En Windows 11:** Ve a *Configuración > Personalización > Barra de tareas > Otros iconos de la bandeja del sistema*, busca *AceStream* y márcalo como **Activado**.
+   - **En Windows 10:** Ve a *Configuración > Personalización > Barra de tareas > Área de notificación > Seleccionar qué iconos aparecen en la barra de tareas* y activa *AceStream* (o marca *"Mostrar siempre todos los iconos en el área de notificación"*).
+
+### B. El proceso se cerraba al arrancar ("icono fantasma" que desaparece al pasar el ratón)
+Si el icono salía pero desaparecía en cuanto pasabas el cursor sobre él, significa que `ace_engine.exe` se cerraba en segundo plano. Esto ocurría porque las peticiones internas de AceStream a `127.0.0.1:6878` se enviaban al proxy en vez de resolverse localmente.
+- Los scripts actualizados ya incluyen **`NO_PROXY=localhost,127.0.0.1,::1`** y fijan el directorio de trabajo del motor.
+- Para aplicar la solución en tu PC, vuelve a ejecutar el instalador:
+  ```powershell
+  .\windows\install-windows-autostart.ps1
+  ```
+  O ejecuta el acceso directo **`Reiniciar AceStream (WARP).bat`**.

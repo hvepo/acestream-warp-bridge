@@ -27,7 +27,9 @@ if not "%PROXY_HOST%"=="" (
     set HTTP_PROXY=http://%PROXY_HOST%:%PROXY_PORT%
     set HTTPS_PROXY=http://%PROXY_HOST%:%PROXY_PORT%
     set ALL_PROXY=socks5://%PROXY_HOST%:%PROXY_PORT%
+    set NO_PROXY=localhost,127.0.0.1,::1
 )
 
+cd /d "%APPDATA%\ACEStream\engine"
 start "" "%APPDATA%\ACEStream\engine\ace_engine.exe"
 exit
