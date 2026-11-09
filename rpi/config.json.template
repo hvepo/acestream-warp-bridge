@@ -1,0 +1,57 @@
+{
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "dns-remote",
+        "type": "tls",
+        "server": "1.1.1.1"
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "::",
+      "listen_port": 1080
+    }
+  ],
+  "endpoints": [
+    {
+      "type": "wireguard",
+      "tag": "warp-endpoint",
+      "address": [
+        "172.16.0.2/32",
+        "2606:4700:110:88b4:bda5:d6c7:bb8d:15fb/128"
+      ],
+      "private_key": "YOUR_WARP_PRIVATE_KEY_HERE",
+      "peers": [
+        {
+          "address": "162.159.192.1",
+          "port": 2408,
+          "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+          "allowed_ips": ["0.0.0.0/0", "::/0"]
+        }
+      ],
+      "mtu": 1280
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "inbound": "mixed-in",
+        "outbound": "warp-endpoint"
+      }
+    ]
+  }
+}

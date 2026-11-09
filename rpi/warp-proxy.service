@@ -1,0 +1,16 @@
+[Unit]
+Description=Cloudflare WARP SOCKS5/HTTP Proxy Gateway (sing-box)
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/etc/warp-proxy
+ExecStart=/opt/warp-proxy/sing-box run -c /etc/warp-proxy/config.json
+Restart=always
+RestartSec=5s
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

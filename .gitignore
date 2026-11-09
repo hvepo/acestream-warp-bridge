@@ -1,0 +1,15 @@
+# Secretos y claves privadas de WireGuard / Cloudflare WARP
+*.key
+*.pem
+*.toml
+*profile.conf
+config.json
+
+# Logs y volcados de depuración
+*.log
+*.dmp
+
+# Archivos de sistema y SO
+.DS_Store
+Thumbs.db
+desktop.ini
