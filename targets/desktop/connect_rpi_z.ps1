@@ -50,37 +50,28 @@ if (-not $activeTarget) {
     Write-Host " 3. Tailscale is not running on this PC." -ForegroundColor Gray
     Write-Host ""
     
-    # Check network profile
     $netProfiles = Get-NetConnectionProfile -ErrorAction SilentlyContinue
     foreach ($p in $netProfiles) {
         if ($p.NetworkCategory -eq "Public") {
-            Write-Host " [WARNING] Your network adapter '$($p.Name)' is set to Public." -ForegroundColor Yellow
-            Write-Host "           Windows blocks local network file sharing on public networks." -ForegroundColor Yellow
-            $change = Read-Host " Switch to Private network to unblock Raspberry Pi shares? (Y/N)"
+            Write-Host " [WARNING] Network adapter '$($p.Name)' is set to Public." -ForegroundColor Yellow
+            $change = Read-Host " Switch to Private network to unblock SMB? (Y/N)"
             if ($change -eq "Y" -or $change -eq "y") {
                 try {
                     Set-NetConnectionProfile -Name $p.Name -NetworkCategory Private -ErrorAction Stop
                     Write-Host " -> [OK] Changed to Private network." -ForegroundColor Green
                 } catch {
-                    Write-Host " -> [WARNING] Administrator rights required to change network profile." -ForegroundColor Yellow
+                    Write-Host " -> [WARNING] Administrator rights required." -ForegroundColor Yellow
                 }
             }
         }
     }
-    Write-Host ""
-    Write-Host "Press any key to exit..." -ForegroundColor Gray
-    [Console]::ReadKey($true) | Out-Null
     exit 1
 }
 
 Write-Host ""
 Write-Host "[2/3] Raspberry Pi detected at: $activeTarget" -ForegroundColor Green
-Write-Host "      Querying network shares..." -ForegroundColor Cyan
 
-$sharesOutput = net view "\\$activeTarget" 2>&1
-$sharesOutput | ForEach-Object { Write-Host "      $_" -ForegroundColor Gray }
-
-Write-Host ""
+# 2. Check existing Z: mapping
 Write-Host "[3/3] Configuring Network Drive Z:..." -ForegroundColor Yellow
 
 $existingZ = Get-PSDrive -Name "Z" -ErrorAction SilentlyContinue
@@ -91,13 +82,9 @@ if ($existingZ -or $netZ) {
     net use Z: /delete /yes 2>$null | Out-Null
 }
 
-Write-Host ""
-Write-Host " Press Enter to auto-detect 'playlists' or 'share':" -ForegroundColor Gray
-$shareName = Read-Host " Share folder name"
-if ([string]::IsNullOrWhiteSpace($shareName)) {
-    if (Test-Path "\\$activeTarget\playlists") {
-        $shareName = "playlists"
-    } else {
+$shareName = "playlists"
+if (-not (Test-Path "\\$activeTarget\$shareName")) {
+    if (Test-Path "\\$activeTarget\share") {
         $shareName = "share"
     }
 }
@@ -108,7 +95,7 @@ Write-Host " Mapping Z: to $fullPath..." -ForegroundColor Cyan
 $mapResult = net use Z: "$fullPath" /persistent:yes 2>&1
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host " Authentication required for Raspberry Pi." -ForegroundColor Yellow
+    Write-Host " Authentication requested by Raspberry Pi." -ForegroundColor Yellow
     $user = Read-Host " Raspberry Pi username (default: hvepo)"
     if ([string]::IsNullOrWhiteSpace($user)) { $user = "hvepo" }
     
@@ -124,9 +111,9 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "========================================================" -ForegroundColor Green
     Write-Host " [SUCCESS] Drive Z: mapped to Raspberry Pi ($fullPath)" -ForegroundColor Green
     Write-Host "========================================================" -ForegroundColor Green
-    Start-Process "explorer.exe" -ArgumentList "Z:\"
 } else {
     Write-Host ""
     Write-Host " [FAILED] Could not map drive Z:." -ForegroundColor Red
     Write-Host " Details: $mapResult" -ForegroundColor Yellow
+    exit 1
 }

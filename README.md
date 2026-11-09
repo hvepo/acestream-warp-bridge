@@ -1,6 +1,7 @@
 # WarpAcePi 🛡️📡
 
 > Comprehensive Anti-Censorship Gateway & Automated M3U Playlist Manager for AceStream on Raspberry Pi + Cloudflare WARP + Tailscale Mesh.
+> Built with dedicated target profiles (`targets/desktop/`, `targets/laptop/`, `targets/rpi/`) and a strict **Zero Desktop Pollution** policy.
 
 [![Tailscale](https://img.shields.io/badge/Tailscale-Mesh%20WireGuard-blue.svg)](https://tailscale.com)
 [![Cloudflare WARP](https://img.shields.io/badge/Cloudflare-WARP-orange.svg)](https://cloudflare.com)
@@ -14,24 +15,33 @@
 
 In Spain and across Europe, major ISPs (DIGI, Telefónica, Vodafone, Orange) enforce **dynamic IP blocking and BGP null-routing** during major sporting events (LaLiga, Champions League).
 
-Even with an active AceStream Premium subscription, ISP DPI (Deep Packet Inspection) censors tracker and peer IP addresses in real time, freezing the stream within minutes (*"Connecting to peers 0%" / Prebuffering loop*).
+Even with an active AceStream Premium subscription, ISP DPI (Deep Packet Inspection) censors tracker and peer IP addresses in real time, freezing the stream within minutes (*"Connecting to peers 0%" / Prebuffering loop*). Running multiple devices on the same home router also leads to UPnP port collisions, packet drops on USB dock network adapters, and disconnected network drives.
 
 ---
 
 ## 🚀 The Solution: WarpAcePi
 
-**WarpAcePi** merges lightweight anti-censorship routing with an autonomous channel catalog & playlist distribution server:
+**WarpAcePi** provides a clean, target-based architecture where every device has dedicated resources:
 
-1. **Anti-Censorship Gateway (Raspberry Pi):** An ultra-lightweight SOCKS5/HTTP proxy (`sing-box`) routing AceStream traffic through the **Cloudflare WARP** backbone via WireGuard.
+1. **Anti-Censorship Gateway (Raspberry Pi Target):** Ultra-lightweight SOCKS5/HTTP proxy (`sing-box`) routing AceStream traffic through the **Cloudflare WARP** backbone via WireGuard on port `1080`.
 2. **Autonomous Playlist Generator:** Automated scraping, validation, and compiling of verified M3U/M3U8 playlists for VLC and AcePlayer.
-3. **Automated Network Drive (Drive Z:):** Samba service sharing playlists across your LAN and Tailscale mesh, automatically mounted as network drive `Z:` on Windows.
-4. **Clean Windows Client Tools:** Zero desktop pollution scripts with automatic port isolation (`48621` on desktop, `48622` on laptop) and fixed HTTP loopback API (`127.0.0.1:6878`).
+3. **Automated Network Drive (Drive Z:):** Samba service sharing playlists across your LAN and Tailscale mesh, automatically mounted as network drive `Z:` on Windows clients.
+4. **Target-Dedicated Windows Resources:**
+   - **Desktop PC (`targets/desktop/`):** Dedicated P2P port `48621`, local loopback HTTP API `127.0.0.1:6878`, silent autostart.
+   - **Laptop (`targets/laptop/`):** Dedicated P2P port `48622`, dock network adapter optimization (Green Ethernet / EEE packet drop prevention), full diagnostic repair suite.
+5. **Zero Desktop Policy:** No files, batch scripts, or shortcuts are placed on the Windows desktop. All scripts and tools remain strictly inside the repository.
 
 ```mermaid
 flowchart LR
-    subgraph Clients ["Clients (Desktop PC / Laptop / TV)"]
-        VLC["VLC Player\n(Plays from Z:\\playlist_vlc.m3u)"]
-        A["AceStream Engine\n(127.0.0.1:6878)"]
+    subgraph Clients ["Clients (Target Profiles)"]
+        subgraph DT ["Desktop PC (Port 48621)"]
+            VLC1["VLC Player"]
+            A1["AceStream Engine\n(127.0.0.1:6878)"]
+        end
+        subgraph LT ["Laptop (Port 48622)"]
+            VLC2["VLC Player"]
+            A2["AceStream Engine\n(127.0.0.1:6878)"]
+        end
     end
 
     subgraph Network ["Connectivity Mesh"]
@@ -40,8 +50,8 @@ flowchart LR
         SMB["Samba Share\n(Mounted as Drive Z:)"]
     end
 
-    subgraph RPi ["Raspberry Pi Server (WarpAcePi)"]
-        S["sing-box Proxy\nRAM: ~50MB | CPU: <1%"]
+    subgraph RPi ["Raspberry Pi Target (WarpAcePi)"]
+        S["sing-box Proxy\n(Port 1080)"]
         P["Automated Channel Updater\n(Runs every 6h via systemd)"]
     end
 
@@ -50,15 +60,19 @@ flowchart LR
         P2P["AceStream Swarm & Trackers"]
     end
 
-    VLC -->|"Reads M3U"| SMB
-    VLC -->|"Requests Stream"| A
-    A -->|"External Traffic via Proxy"| T
-    A -.->|"Fallback Local LAN"| L
+    VLC1 -->|"Reads M3U"| SMB
+    VLC2 -->|"Reads M3U"| SMB
+    VLC1 -->|"Requests Stream"| A1
+    VLC2 -->|"Requests Stream"| A2
+    A1 -->|"Traffic via Proxy"| T
+    A2 -->|"Traffic via Proxy"| T
+    A1 -.->|"Fallback LAN"| L
+    A2 -.->|"Fallback LAN"| L
     T --> S
     L --> S
     S -->|"Encrypted WireGuard"| CF
     CF --> P2P
-    P -->|"Updates M3U"| SMB
+    P -->|"Updates Playlists"| SMB
 ```
 
 ---
@@ -67,107 +81,136 @@ flowchart LR
 
 ```text
 WarpAcePi/
-├── README.md                            # Complete documentation
+├── README.md                            # Documentation and architecture guide
 ├── requirements.txt                     # Python dependencies (requests)
-├── update_and_activate.bat              # 1-click Windows installer and updater
+├── update_and_activate.bat              # Interactive target selector and activator
 ├── update_channels.bat                  # Manual channel scraper and M3U compiler
+│
+├── targets/                             # Dedicated resources organized by device
+│   │
+│   ├── desktop/                         # TARGET: Desktop PC (P2P Port 48621)
+│   │   ├── activate.bat                 # 1-click installer, activator & desktop cleaner
+│   │   ├── restart_acestream_warp.bat   # Restart AceStream (WARP shield, port 48621, HTTP 6878)
+│   │   ├── mount_z_drive.bat            # Map RPi playlists to network drive Z:
+│   │   ├── test_connection.bat          # Test RPi proxy 1080, Samba 445, local 6878
+│   │   ├── uninstall_autostart.bat      # Restore original AceStream startup
+│   │   ├── launch_acestream.bat         # Direct launcher with port 48621
+│   │   ├── launch_acestream_silent.vbs  # Silent VBS launcher (no console window)
+│   │   ├── install_autostart.ps1        # Auto-start installer + strict desktop cleaner
+│   │   └── connect_rpi_z.ps1            # Network drive Z: PowerShell mapper
+│   │
+│   ├── laptop/                          # TARGET: Laptop (P2P Port 48622 + Dock Optimization)
+│   │   ├── activate.bat                 # 1-click installer, activator, dock tuner & desktop cleaner
+│   │   ├── restart_acestream_warp.bat   # Restart AceStream (WARP shield, port 48622, HTTP 6878)
+│   │   ├── diagnose_and_repair.bat      # Comprehensive laptop diagnostic and repair suite
+│   │   ├── optimize_network.bat         # Disable Green Ethernet / EEE on USB dock NIC
+│   │   ├── mount_z_drive.bat            # Map RPi playlists to network drive Z:
+│   │   ├── test_connection.bat          # Test RPi proxy 1080, Samba 445, local 6878
+│   │   ├── uninstall_autostart.bat      # Restore original AceStream startup
+│   │   ├── launch_acestream.bat         # Direct launcher with port 48622
+│   │   ├── launch_acestream_silent.vbs  # Silent VBS launcher
+│   │   ├── install_autostart.ps1        # Auto-start installer + strict desktop cleaner
+│   │   ├── connect_rpi_z.ps1            # Network drive Z: PowerShell mapper
+│   │   └── diagnose_laptop.ps1          # Comprehensive diagnostic script
+│   │
+│   └── rpi/                             # TARGET: Raspberry Pi (WARP Proxy & Playlist Server)
+│       ├── setup.sh                     # Full 1-command installer (proxy + Samba + timers)
+│       ├── install_warp_service.sh      # Installs sing-box WARP proxy on port 1080
+│       ├── configure_samba.sh           # Configures Samba share [playlists] for drive Z:
+│       ├── install_update_timer.sh      # Installs systemd timer to refresh channels every 6h
+│       ├── run_channel_update.sh        # Manually refresh playlists and test streams now
+│       ├── config.json.template         # sing-box WARP configuration template
+│       └── warp-proxy.service           # systemd service unit
+│
 ├── data/
 │   ├── channels.json                    # Structured channel catalog & metadata
 │   ├── sources.json                     # External web scrapers and portals
 │   └── hashes_acestream.m3u             # Extracted content IDs
+│
 ├── playlists/                           # Master playlists (shared as Drive Z:)
 │   ├── playlist_vlc.m3u                 # Optimized for VLC (http://127.0.0.1:6878/...)
 │   ├── playlist_direct.m3u              # Native acestream:// links (Ace Player)
 │   ├── playlist_http.m3u                # Standard HTTP proxy links
 │   └── working_streams_vlc_NOW.m3u      # Verified live working streams
+│
 ├── scripts/
 │   ├── evaluate_and_update.py           # Web scraper, live stream validator & compiler
 │   ├── build_playlist.py                # M3U playlist builder
 │   ├── check_streams.py                 # SHA-1 hash validator
 │   └── import_m3u.py                    # Import existing M3U files into catalog
-├── rpi/
-│   ├── install-rpi-service.sh           # Raspberry Pi WARP proxy installer
-│   ├── setup-rpi-services.sh            # Samba share (Z:) + systemd update timer
-│   ├── config.json.template             # sing-box WARP configuration template
-│   └── warp-proxy.service               # systemd unit for WARP proxy
-└── windows/
-    ├── restart_acestream_warp.bat       # Restart AceStream with WARP shield & port 6878
-    ├── check_rpi_connection.bat         # Diagnostics for RPi, WARP, Tailscale & sockets
-    ├── connect_z_drive_rpi.bat          # 1-click mapper for Drive Z: (RPi Samba)
-    ├── laptop_diagnostic_repair.bat     # Diagnostic & repair tool for Windows clients
-    ├── launch_acestream.bat             # Auto-detecting smart launcher with fallback
-    ├── launch_acestream_silent.vbs      # Silent login-time launcher
-    └── install-windows-autostart.ps1    # Registry auto-start installer
+│
+└── docs/
+    └── troubleshooting.md               # Complete multi-device troubleshooting guide
 ```
 
 ---
 
 ## 🛠️ Quick Start
 
-### 1. On Raspberry Pi
+### 1. On Raspberry Pi Target
 
-Run the automated installer:
+SSH into your Raspberry Pi and run:
 ```bash
 git clone https://github.com/hvepo/acestream-warp-bridge.git WarpAcePi
-cd WarpAcePi/rpi
-
-# 1. Install WARP Proxy (sing-box on port 1080)
-chmod +x install-rpi-service.sh setup-rpi-services.sh
-./install-rpi-service.sh
-
-# 2. Setup Samba (Drive Z:) and automatic 6-hour playlist updater
-./setup-rpi-services.sh
+cd WarpAcePi/targets/rpi
+chmod +x setup.sh && ./setup.sh
 ```
 
-### 2. On Windows Clients (Desktop & Laptop)
+This single command:
+1. Installs and enables `sing-box` with Cloudflare WARP on port `1080`.
+2. Sets up Samba share `[playlists]` so Windows clients can mount `Z:\`.
+3. Enables systemd timer `update-acestream-playlists.timer` to refresh streams every 6 hours.
 
-#### Option A: One-line remote install (PowerShell)
-```powershell
-irm https://raw.githubusercontent.com/hvepo/acestream-warp-bridge/main/windows/install-remote.ps1 | iex
-```
+---
 
-#### Option B: From cloned repository
-Simply double-click:
+### 2. On Windows Desktop PC Target
+
+Navigate inside the cloned repository to `targets\desktop\` and run:
 ```text
-update_and_activate.bat
+targets\desktop\activate.bat
 ```
+*(Or run `update_and_activate.bat` from the root and select `[1] Desktop PC`)*
 
-This will automatically configure:
-1. Silent startup entry with WARP shield at Windows login.
-2. Tools ready inside `windows/` folder (desktop remains 100% clean).
-3. Connect Drive `Z:` by running `windows\connect_z_drive_rpi.bat`.
+**What this does:**
+- Configures AceStream inbound P2P port to `48621` (UPnP mapped to Desktop `192.168.1.142`).
+- Registers silent autostart with WARP shield at Windows boot.
+- Maps Raspberry Pi playlists as network drive `Z:`.
+- Enforces the **Zero Desktop Policy** (removes any shortcuts from Desktop; everything remains inside the repository).
+- Verifies local HTTP server at `http://127.0.0.1:6878`.
+
+---
+
+### 3. On Windows Laptop Target
+
+Navigate inside the cloned repository to `targets\laptop\` and run:
+```text
+targets\laptop\activate.bat
+```
+*(Or run `update_and_activate.bat` from the root and select `[2] Laptop`)*
+
+**What this does:**
+- Configures AceStream inbound P2P port to `48622` (UPnP mapped to Laptop `192.168.1.150`).
+- Disables Green Ethernet / Energy Efficient Ethernet on USB Dock network adapters to prevent packet drops and stuttering.
+- Registers silent autostart with WARP shield at Windows boot.
+- Maps Raspberry Pi playlists as network drive `Z:`.
+- Enforces the **Zero Desktop Policy**.
+- Includes `targets\laptop\diagnose_and_repair.bat` for instant troubleshooting if dock or WiFi drops.
 
 ---
 
 ## ⚙️ Multi-Device Port Configuration
 
-When streaming on multiple computers behind the same home router:
-
-| Device | AceStream Options -> Port (P2P) | Local VLC HTTP API | Destination Proxy |
-| :--- | :---: | :---: | :---: |
-| **Desktop PC** | **`48621`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) |
-| **Laptop** | **`48622`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) |
-
-> [!TIP]
-> Each computer must have a unique P2P port in AceStream Options to avoid router UPnP port collisions. Both computers use the standard local port `6878` for VLC compatibility.
+| Device | Inbound P2P Port | Local VLC HTTP API | Destination Proxy | Notes |
+| :--- | :---: | :---: | :---: | :--- |
+| **Desktop PC** | **`48621`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) | Ethernet (Fixed) |
+| **Laptop** | **`48622`** | `127.0.0.1:6878` | `100.89.165.79:1080` (RPi) | Dock NIC tuned |
+| **Raspberry Pi** | N/A | N/A | WireGuard Cloudflare WARP | Port 1080 (Proxy) + 445 (Samba) |
 
 ---
 
-## 🧪 Verification & Diagnostics
+## 🛡️ Zero Desktop Pollution Guarantee
 
-To verify the proxy status and Cloudflare WARP exit node:
-```bash
-curl -s -x socks5h://100.89.165.79:1080 https://cloudflare.com/cdn-cgi/trace | grep warp=
-# Expected output: warp=on
-```
-
-On Windows, run:
-```cmd
-windows\check_rpi_connection.bat
-```
-
----
-
-## 📄 License
-
-Distributed under the [MIT](LICENSE) License.
+WarpAcePi strictly adheres to a **Zero Desktop Policy**:
+- **No desktop shortcuts:** No `.lnk`, `.bat`, or `.vbs` files are copied or created on your Desktop or OneDrive Desktop.
+- **Repository-contained tools:** All utilities reside in their respective `targets/<device>/` folders.
+- **Automatic cleanup:** Any stray shortcuts from previous installations are cleaned automatically when running `activate.bat`.

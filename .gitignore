@@ -1,15 +1,21 @@
-# Secretos y claves privadas de WireGuard / Cloudflare WARP
+# Secrets and private keys (WireGuard / Cloudflare WARP)
 *.key
 *.pem
 *.toml
 *profile.conf
 config.json
 
-# Logs y volcados de depuración
+# Logs and dumps
 *.log
 *.dmp
 
-# Archivos de sistema y SO
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# System and OS files
 .DS_Store
 Thumbs.db
 desktop.ini

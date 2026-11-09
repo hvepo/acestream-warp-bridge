@@ -1,48 +1,41 @@
 @echo off
 setlocal
-title Update and Activate - WarpAcePi
+title WarpAcePi Target Selector & Activator
 cd /d "%~dp0"
 
 echo ========================================================
-echo       AUTOMATIC UPDATER AND INSTALLER - WarpAcePi
+echo       WARPACEPI - TARGET ACTIVATOR ^& UPDATER
+echo ========================================================
+echo  All resources remain strictly inside the repository.
+echo  Zero files or shortcuts will be created on your Desktop.
 echo ========================================================
 echo.
-
-:: 1. Update repository if git is available
-where git >nul 2>&1
-if %ERRORLEVEL% equ 0 (
-    echo [*] Pulling latest updates from GitHub...
-    git pull origin main
-    echo.
-) else (
-    echo [*] Git not found in PATH, continuing with local files...
-)
-
-:: 2. Execute PowerShell installer
-echo [*] Registering auto-start launcher and configuration...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0windows\install-windows-autostart.ps1"
-
-if %ERRORLEVEL% neq 0 (
-    echo.
-    echo [!] An error occurred during installation.
-    pause
-    exit /b %ERRORLEVEL%
-)
-
+echo Please select your target device:
 echo.
-echo ========================================================
-echo   INSTALLATION AND UPDATE COMPLETED SUCCESSFULLY
-echo ========================================================
-echo  Applied configuration:
-echo   - Silent auto-start with WARP shield at Windows login
-echo   - Tools available in windows\ folder
-echo   - Desktop kept 100%% clean (zero shortcuts)
-echo ========================================================
+echo   [1] Desktop PC (Inbound P2P Port 48621, HTTP API 6878)
+echo   [2] Laptop     (Inbound P2P Port 48622, Dock Optimization)
+echo   [Q] Quit
 echo.
+set /p TARGET_CHOICE="Enter selection [1, 2, or Q]: "
 
-set /p RESP="Do you want to restart AceStream with the WARP shield now? (Y/N): "
-if /i "%RESP%"=="Y" (
-    start "" "%~dp0windows\restart_acestream_warp.bat"
-)
+if "%TARGET_CHOICE%"=="1" goto :TARGET_DESKTOP
+if "%TARGET_CHOICE%"=="2" goto :TARGET_LAPTOP
+if /i "%TARGET_CHOICE%"=="Q" goto :QUIT
+echo Invalid selection.
+pause
+exit /b 1
 
+:TARGET_DESKTOP
+echo.
+echo [*] Launching Desktop PC activation...
+call "%~dp0targets\desktop\activate.bat"
+exit /b %ERRORLEVEL%
+
+:TARGET_LAPTOP
+echo.
+echo [*] Launching Laptop activation...
+call "%~dp0targets\laptop\activate.bat"
+exit /b %ERRORLEVEL%
+
+:QUIT
 exit /b 0
