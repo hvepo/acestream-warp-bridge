@@ -73,6 +73,34 @@ if ($aceProc) {
     } catch {
         Write-Host "      -> [AVISO] ace_engine.exe corre pero la API 127.0.0.1:6878 no responde." -ForegroundColor Yellow
     }
+
+    # Probar peticion de stream de prueba para diagnosticar error de VLC
+    Write-Host "      -> Probando respuesta de stream en 127.0.0.1:6878..." -ForegroundColor Cyan
+    try {
+        $req = [System.Net.WebRequest]::Create("http://127.0.0.1:6878/ace/getstream?id=cc108ae39f92c48f6c946763047bd1c9b7b7d889")
+        $req.Timeout = 4000
+        $sResp = $req.GetResponse()
+        Write-Host "      -> [OK] El motor responde al stream con estado HTTP: $([int]$sResp.StatusCode)" -ForegroundColor Green
+        $sResp.Close()
+    } catch [System.Net.WebException] {
+        if ($_.Response) {
+            $errStream = $_.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($errStream)
+            $errBody = $reader.ReadToEnd()
+            Write-Host "      -> [ERROR MOTOR] HTTP $([int]$_.Response.StatusCode): $errBody" -ForegroundColor Red
+        } else {
+            Write-Host "      -> [ERROR RED] No se pudo obtener respuesta del stream: $($_.Message)" -ForegroundColor Red
+        }
+    } catch {
+        Write-Host "      -> [ERROR] $($_.Message)" -ForegroundColor Red
+    }
+
+    # Mostrar ultimas lineas de acestream.log
+    $logPath = "$env:APPDATA\ACEStream\engine\acestream.log"
+    if (Test-Path $logPath) {
+        Write-Host "      -> Ultimas lineas del registro de AceStream (acestream.log):" -ForegroundColor Gray
+        Get-Content $logPath -Tail 8 | ForEach-Object { Write-Host "         $_" -ForegroundColor DarkGray }
+    }
 } else {
     Write-Host "      -> [FALLO] ace_engine.exe NO esta corriendo en este portatil." -ForegroundColor Red
     Write-Host "         Iniciando AceStream con escudo WARP..." -ForegroundColor Cyan
