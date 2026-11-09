@@ -31,10 +31,18 @@ if (-not (Test-Path $engineDir)) {
 Copy-Item (Join-Path $scriptDir "launch_acestream.bat") -Destination $batTarget -Force
 Copy-Item (Join-Path $scriptDir "launch_acestream_silent.vbs") -Destination $vbsTarget -Force
 
-# 2. Copiar accesos directos al escritorio
-$desktopPath = [Environment]::GetFolderPath("Desktop")
-Copy-Item (Join-Path $scriptDir "Reiniciar AceStream (WARP).bat") -Destination (Join-Path $desktopPath "Reiniciar AceStream (WARP).bat") -Force
-Copy-Item (Join-Path $scriptDir "Comprobar Conexion RPi.bat") -Destination (Join-Path $desktopPath "Comprobar Conexion RPi.bat") -Force
+# 2. Copiar accesos directos al escritorio (soporte nativo para OneDrive y carpetas sincronizadas)
+$candidateDesktops = @(
+    [Environment]::GetFolderPath("Desktop"),
+    (Join-Path $env:USERPROFILE "Desktop"),
+    (Join-Path $env:USERPROFILE "OneDrive\Desktop"),
+    (Join-Path $env:USERPROFILE "OneDrive\Escritorio")
+) | Select-Object -Unique | Where-Object { Test-Path $_ }
+
+foreach ($dPath in $candidateDesktops) {
+    Copy-Item (Join-Path $scriptDir "Reiniciar AceStream (WARP).bat") -Destination (Join-Path $dPath "Reiniciar AceStream (WARP).bat") -Force
+    Copy-Item (Join-Path $scriptDir "Comprobar Conexion RPi.bat") -Destination (Join-Path $dPath "Comprobar Conexion RPi.bat") -Force
+}
 Write-Host "[OK] Creados accesos directos en el Escritorio ('Reiniciar AceStream (WARP)' y 'Comprobar Conexion RPi')." -ForegroundColor Green
 
 # 3. Registrar en HKCU Run

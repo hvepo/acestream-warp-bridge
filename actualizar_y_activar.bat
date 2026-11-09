@@ -42,7 +42,7 @@ echo.
 
 set /p RESP="Deseas reiniciar AceStream con el escudo ahora mismo? (S/N): "
 if /i "%RESP%"=="S" (
-    start "" "%USERPROFILE%\Desktop\Reiniciar AceStream (WARP).bat"
+    start "" "%~dp0windows\Reiniciar AceStream (WARP).bat"
 )
 
 exit /b 0
