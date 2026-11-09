@@ -72,6 +72,7 @@ acestream-warp-bridge/
 │   ├── launch_acestream.bat           # Lanzador inteligente con auto-detección y fallback
 │   ├── launch_acestream_silent.vbs    # Ejecutor silencioso (sin ventana CMD al iniciar sesión)
 │   ├── Reiniciar AceStream (WARP).bat # Acceso directo de escritorio para reconexión manual
+│   ├── Comprobar Conexion RPi.bat     # Diagnóstico integral de conectividad RPi, WARP y sockets
 │   └── install-windows-autostart.ps1  # Script PowerShell para registrar el arranque en Windows
 └── docs/
     └── troubleshooting.md             # Guía paso a paso para depuración y diagnóstico

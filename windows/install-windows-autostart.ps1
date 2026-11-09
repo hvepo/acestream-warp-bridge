@@ -31,10 +31,11 @@ if (-not (Test-Path $engineDir)) {
 Copy-Item (Join-Path $scriptDir "launch_acestream.bat") -Destination $batTarget -Force
 Copy-Item (Join-Path $scriptDir "launch_acestream_silent.vbs") -Destination $vbsTarget -Force
 
-# 2. Copiar acceso directo al escritorio
+# 2. Copiar accesos directos al escritorio
 $desktopPath = [Environment]::GetFolderPath("Desktop")
 Copy-Item (Join-Path $scriptDir "Reiniciar AceStream (WARP).bat") -Destination (Join-Path $desktopPath "Reiniciar AceStream (WARP).bat") -Force
-Write-Host "[OK] Creado acceso directo en el Escritorio." -ForegroundColor Green
+Copy-Item (Join-Path $scriptDir "Comprobar Conexion RPi.bat") -Destination (Join-Path $desktopPath "Comprobar Conexion RPi.bat") -Force
+Write-Host "[OK] Creados accesos directos en el Escritorio ('Reiniciar AceStream (WARP)' y 'Comprobar Conexion RPi')." -ForegroundColor Green
 
 # 3. Registrar en HKCU Run
 $regValue = "wscript.exe `"$vbsTarget`""
