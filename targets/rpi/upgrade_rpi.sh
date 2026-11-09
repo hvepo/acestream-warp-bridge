@@ -6,7 +6,7 @@ echo "=========================================================="
 echo "      WARPACEPI - 1-LINE RASPBERRY PI UPGRADER"
 echo "=========================================================="
 
-REPO_URL="https://github.com/hvepo/acestream-warp-bridge.git"
+REPO_URL="https://github.com/hvepo/WarpAcePi.git"
 TARGET_DIR=""
 
 if [ -d "$HOME/WarpAcePi/.git" ]; then

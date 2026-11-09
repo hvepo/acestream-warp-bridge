@@ -151,7 +151,7 @@ WarpAcePi/
 
 SSH into your Raspberry Pi and run:
 ```bash
-git clone https://github.com/hvepo/acestream-warp-bridge.git WarpAcePi
+git clone https://github.com/hvepo/WarpAcePi.git
 cd WarpAcePi/targets/rpi
 chmod +x setup.sh && ./setup.sh
 ```
