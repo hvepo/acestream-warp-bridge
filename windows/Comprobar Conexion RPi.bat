@@ -12,8 +12,7 @@ set TAILSCALE_IP=100.89.165.79
 set LAN_IP=192.168.1.139
 
 echo [1/4] Probando puerto 1080 en Tailscale (!TAILSCALE_IP!)...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$t = New-Object Net.Sockets.TcpClient; try { $ar = $t.BeginConnect('!TAILSCALE_IP!', 1080, $null, $null); if ($ar.AsyncWaitHandle.WaitOne(3000, $false)) { $t.EndConnect($ar); exit 0 } else { exit 1 } } catch { exit 1 } finally { $t.Close() }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$t = New-Object Net.Sockets.TcpClient; try { $ar = $t.BeginConnect('!TAILSCALE_IP!', 1080, $null, $null); if ($ar.AsyncWaitHandle.WaitOne(3000, $false)) { $t.EndConnect($ar); exit 0 } else { exit 1 } } catch { exit 1 } finally { $t.Close() }" >nul 2>&1
 
 if %ERRORLEVEL% equ 0 (
     echo       -> [OK] Puerto 1080 responde correctamente via Tailscale.
@@ -24,8 +23,7 @@ if %ERRORLEVEL% equ 0 (
 
 echo.
 echo [2/4] Probando puerto 1080 en Red Local LAN (!LAN_IP!)...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$t = New-Object Net.Sockets.TcpClient; try { $ar = $t.BeginConnect('!LAN_IP!', 1080, $null, $null); if ($ar.AsyncWaitHandle.WaitOne(2000, $false)) { $t.EndConnect($ar); exit 0 } else { exit 1 } } catch { exit 1 } finally { $t.Close() }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$t = New-Object Net.Sockets.TcpClient; try { $ar = $t.BeginConnect('!LAN_IP!', 1080, $null, $null); if ($ar.AsyncWaitHandle.WaitOne(2000, $false)) { $t.EndConnect($ar); exit 0 } else { exit 1 } } catch { exit 1 } finally { $t.Close() }" >nul 2>&1
 
 if %ERRORLEVEL% equ 0 (
     echo       -> [OK] Puerto 1080 responde correctamente via LAN.
@@ -62,8 +60,7 @@ if %ERRORLEVEL% equ 0 (
 
 echo.
 echo [4/4] Comprobando conexiones activas de AceStream hacia la RPi...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$conns = Get-NetTCPConnection -RemotePort 1080 -ErrorAction SilentlyContinue; if ($conns) { Write-Host '      -> [OK] Hay conexiones ACTIVAS establecidas con la RPi en el puerto 1080:' -ForegroundColor Green; $conns | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State | Format-Table -AutoSize | Out-String | Write-Host } else { Write-Host '      -> [INFO] En este momento no hay conexiones abiertas hacia el puerto 1080.' -ForegroundColor Yellow; Write-Host '         (Inicia un stream en AceStream para ver el trafico fluir).' }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$conns = Get-NetTCPConnection -RemotePort 1080 -ErrorAction SilentlyContinue; if ($conns) { Write-Host '      -> [OK] Hay conexiones ACTIVAS establecidas con la RPi en el puerto 1080:' -ForegroundColor Green; $conns | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State | Format-Table -AutoSize | Out-String | Write-Host } else { Write-Host '      -> [INFO] En este momento no hay conexiones abiertas hacia el puerto 1080.' -ForegroundColor Yellow; Write-Host '         (Inicia un stream en AceStream para ver el trafico fluir).' }"
 
 echo.
 echo ========================================================
